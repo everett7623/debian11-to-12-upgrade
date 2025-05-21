@@ -179,10 +179,5 @@ log_message "正在验证升级是否成功..."
 source /etc/os-release
 if [ "$VERSION_ID" = "12" ]; then
     log_message "========================================================"
-    log_message "升级成功完成！"
-    log_message "您的系统现在运行 Debian 12 (Bookworm)。"
-    log_message "强烈建议立即重启系统以应用所有更改。"
-    log_message "========================================================"
-    log_message "系统将在 10 秒后自动重启。按 Ctrl+C 取消重启。"
-    sleep
-::contentReference[oaicite:8]{index=8}
+    log_message "升级成功完成！
+::contentReference[oaicite:14]{index=14}
