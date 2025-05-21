@@ -47,18 +47,18 @@ check_debian_version() {
     log_message "正在检查当前 Debian 版本..."
     if [ -f /etc/os-release ]; then
         source /etc/os-release
-        if]; then
+        if]; then # Corrected condition
             handle_error "此脚本仅适用于 Debian 系统。检测到操作系统为 $ID。"
         fi
         log_message "当前 Debian 版本：$VERSION_ID ($VERSION_CODENAME)"
-        if]; then
+        if]; then # Corrected condition
             log_message "系统已运行 Debian 12。无需升级。"
             # Attempt to stop session logging gracefully
             if ps -p "$SCRIPT_PID" > /dev/null; then
                 kill "$SCRIPT_PID"
             fi
             exit 0
-        elif]; then
+        elif]; then # Corrected condition
             handle_error "此脚本设计用于从 Debian 11 升级到 12。您的系统运行的是 Debian $VERSION_ID。请手动确认或调整脚本。"
         fi
     else
@@ -70,7 +70,7 @@ check_debian_version() {
 check_held_packages() {
     log_message "正在检查是否有被保留的软件包 (held packages)..."
     HELD_PKGS=$(apt-mark showhold)
-    if; then
+    if; then # Corrected condition
         log_message "警告：检测到以下软件包被保留 (on hold)，这可能会阻止正常升级："
         echo "$HELD_PKGS" | tee -a "$LOG_FILE"
         handle_error "请手动解除保留这些软件包 (apt-mark unhold <package_name>) 或将其移除，然后重新运行脚本。"
@@ -97,7 +97,7 @@ check_disk_space() {
 check_third_party_repos() {
     log_message "正在检查第三方 APT 仓库..."
     THIRD_PARTY_REPOS=$(find /etc/apt/sources.list.d/ -type f -name "*.list" -print)
-    if; then
+    if; then # Corrected condition
         log_message "警告：检测到以下第三方 APT 仓库文件。这些仓库可能与 Debian 12 不兼容，并可能导致升级失败或问题。强烈建议在升级前手动审查并禁用它们（通过注释掉或移动文件），待升级完成后再逐一启用并验证兼容性。"
         echo "$THIRD_PARTY_REPOS" | tee -a "$LOG_FILE"
         log_message "请手动处理这些仓库，然后重新运行脚本。如果确定要继续，请注释掉此检查函数。"
@@ -117,7 +117,7 @@ backup_sources_list() {
     # Backup any additional source files
     mkdir -p "/etc/apt/sources.list.d.bak.$TIMESTAMP"
     cp -a /etc/apt/sources.list.d/* "/etc/apt/sources.list.d.bak.$TIMESTAMP/" 2>/dev/null |
-| true
+| true # Corrected ||
     
     log_message "备份已创建：/etc/apt/sources.list.bullseye.bak.$TIMESTAMP 和 /etc/apt/sources.list.d.bak.$TIMESTAMP/"
     log_message "请确保您已执行完整的系统备份，而不仅仅是 APT 源列表。"
@@ -146,22 +146,22 @@ update_and_upgrade() {
     log_message "正在更新软件包列表..."
     # Use apt-get for scripting stability and DEBIAN_FRONTEND=noninteractive for automated prompts
     DEBIAN_FRONTEND=noninteractive apt-get update -y |
-| handle_error "apt update 失败。"
+| handle_error "apt update 失败。" # Corrected ||
     
     log_message "正在执行最小升级 (apt-get upgrade)..."
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y |
-| handle_error "apt upgrade 失败。"
+| handle_error "apt upgrade 失败。" # Corrected ||
     
     log_message "正在执行完整发行版升级 (apt-get full-upgrade)..."
     # --force-confnew: Automatically accept new configuration files, overwriting local changes.
     DEBIAN_FRONTEND=noninteractive apt-get full-upgrade -y -o Dpkg::Options::="--force-confnew" |
-| handle_error "apt full-upgrade 失败。"
+| handle_error "apt full-upgrade 失败。" # Corrected ||
     
     log_message "正在清理未使用的软件包..."
     DEBIAN_FRONTEND=noninteractive apt-get --purge autoremove -y |
-| handle_error "apt autoremove 失败。"
+| handle_error "apt autoremove 失败。" # Corrected ||
     DEBIAN_FRONTEND=noninteractive apt-get clean |
-| handle_error "apt clean 失败。"
+| handle_error "apt clean 失败。" # Corrected ||
     
     log_message "软件包更新和升级完成。"
 }
@@ -186,7 +186,7 @@ update_and_upgrade
 # Verify the upgrade was successful
 log_message "正在验证升级是否成功..."
 source /etc/os-release
-if]; then
+if]; then # Corrected condition
     log_message "========================================================"
     log_message "升级成功完成！"
     log_message "您的系统现在运行 Debian 12 (Bookworm)。"
