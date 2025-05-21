@@ -21,6 +21,7 @@ fi
 
 # Start session logging
 echo "--- 升级脚本开始执行：$(date) ---" | tee -a "$LOG_FILE"
+# Using 'script' command to log all terminal output
 script -q -c "exec bash -i" -a "$LOG_FILE" &
 SCRIPT_PID=$!
 echo "会话日志已启动，输出将记录到 $LOG_FILE" | tee -a "$LOG_FILE"
@@ -34,7 +35,10 @@ log_message() {
 handle_error() {
     log_message "错误：$1"
     log_message "升级过程已中止。请检查日志文件 ($LOG_FILE) 获取详细信息。"
-    kill "$SCRIPT_PID" # Stop session logging
+    # Attempt to stop session logging gracefully
+    if ps -p "$SCRIPT_PID" > /dev/null; then
+        kill "$SCRIPT_PID"
+    fi
     exit 1
 }
 
@@ -49,7 +53,10 @@ check_debian_version() {
         log_message "当前 Debian 版本：$VERSION_ID ($VERSION_CODENAME)"
         if]; then
             log_message "系统已运行 Debian 12。无需升级。"
-            kill "$SCRIPT_PID" # Stop session logging
+            # Attempt to stop session logging gracefully
+            if ps -p "$SCRIPT_PID" > /dev/null; then
+                kill "$SCRIPT_PID"
+            fi
             exit 0
         elif]; then
             handle_error "此脚本设计用于从 Debian 11 升级到 12。您的系统运行的是 Debian $VERSION_ID。请手动确认或调整脚本。"
@@ -195,4 +202,7 @@ fi
 
 # Stop session logging (should be reached only if reboot is cancelled or fails)
 log_message "--- 升级脚本执行结束：$(date) ---"
-kill "$SCRIPT_PID"
+# Attempt to stop session logging gracefully
+if ps -p "$SCRIPT_PID" > /dev/null; then
+    kill "$SCRIPT_PID"
+fi
